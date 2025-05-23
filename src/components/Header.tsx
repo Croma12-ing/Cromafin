@@ -34,9 +34,9 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
             <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">Q</span>
+              <span className="text-white font-bold text-xl">C</span>
             </div>
-            <span className="ml-2 text-2xl font-bold text-gray-900">QuickCredit</span>
+            <span className="ml-2 text-2xl font-bold text-gray-900">CromaFin</span>
           </div>
 
           {/* Navigation */}

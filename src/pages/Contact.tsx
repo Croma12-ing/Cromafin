@@ -154,7 +154,7 @@ const Contact = () => {
                   <CardTitle className="text-green-600">📧 Email Support</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-lg font-semibold text-green-700">support@quickcredit.com</p>
+                  <p className="text-lg font-semibold text-green-700">support@cromafin.com</p>
                   <p className="text-gray-600">Response within 2 hours</p>
                   <p className="text-sm text-gray-500 mt-2">Email us for detailed loan information and documentation help</p>
                 </CardContent>
@@ -165,7 +165,7 @@ const Contact = () => {
                   <CardTitle className="text-yellow-600">🏢 Office Address</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="font-semibold">QuickCredit Financial Services</p>
+                  <p className="font-semibold">CromaFin Financial Services</p>
                   <p className="text-gray-600">
                     123 Business District<br />
                     Mumbai, Maharashtra 400001<br />

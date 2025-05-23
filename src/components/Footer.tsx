@@ -7,9 +7,9 @@ const Footer = () => {
           <div>
             <div className="flex items-center mb-4">
               <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">Q</span>
+                <span className="text-white font-bold">C</span>
               </div>
-              <span className="ml-2 text-xl font-bold">QuickCredit</span>
+              <span className="ml-2 text-xl font-bold">CromaFin</span>
             </div>
             <p className="text-gray-400">
               Your trusted partner for instant loans and financial solutions.
@@ -48,7 +48,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 QuickCredit. All rights reserved.</p>
+          <p>&copy; 2024 CromaFin. All rights reserved.</p>
         </div>
       </div>
     </footer>
