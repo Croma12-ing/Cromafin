@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
+import { addUser } from '@/utils/dataService';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -32,19 +32,13 @@ const Signup = () => {
       return;
     }
     
-    // Store user data
-    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    const newUser = {
-      id: Date.now(),
+    // Store user data using our data service
+    const newUser = addUser({
       name: formData.name,
       email: formData.email,
       phone: formData.phone,
       password: formData.password,
-      createdAt: new Date().toISOString()
-    };
-    
-    existingUsers.push(newUser);
-    localStorage.setItem('users', JSON.stringify(existingUsers));
+    });
     
     toast({
       title: "Account Created Successfully",

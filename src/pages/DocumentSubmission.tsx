@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, QrCode } from 'lucide-react';
+import { addLoanApplication } from '@/utils/dataService';
 
 const DocumentSubmission = () => {
   const navigate = useNavigate();
@@ -49,19 +49,17 @@ const DocumentSubmission = () => {
     
     if (!userData) return;
     
-    const applicationData = {
-      id: Date.now(),
+    // Use our data service to add the loan application
+    addLoanApplication({
       userId: userData.id,
-      ...formData,
+      loanType: formData.loanType,
+      loanAmount: formData.loanAmount,
+      panCard: formData.panCard,
+      aadhaarCard: formData.aadhaarCard,
+      mobileNumber: formData.mobileNumber,
       photoName: formData.photo?.name,
-      status: 'waiting',
-      submittedAt: new Date().toISOString()
-    };
-    
-    // Store loan application
-    const applications = JSON.parse(localStorage.getItem('loanApplications') || '[]');
-    applications.push(applicationData);
-    localStorage.setItem('loanApplications', JSON.stringify(applications));
+      qrCode: formData.qrCode,
+    });
     
     toast({
       title: "Application Submitted Successfully",
