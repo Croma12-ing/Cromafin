@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { Document, QrCode } from 'lucide-react';
+import { FileText, QrCode } from 'lucide-react';
 
 const DocumentSubmission = () => {
   const navigate = useNavigate();
@@ -98,7 +98,7 @@ const DocumentSubmission = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Document className="w-5 h-5 mr-2 text-blue-500" />
+                <FileText className="w-5 h-5 mr-2 text-blue-500" />
                 Loan Application Form
               </CardTitle>
               <CardDescription>Please fill all fields to proceed with your loan application</CardDescription>
