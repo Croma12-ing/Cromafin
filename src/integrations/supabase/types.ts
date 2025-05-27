@@ -9,7 +9,78 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      document_submissions: {
+        Row: {
+          aadhaar_card: string
+          id: string
+          loan_amount: number
+          loan_type: string
+          mobile_number: string
+          pan_card: string
+          photo_url: string | null
+          qr_code: string
+          status: string
+          submitted_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aadhaar_card: string
+          id?: string
+          loan_amount: number
+          loan_type: string
+          mobile_number: string
+          pan_card: string
+          photo_url?: string | null
+          qr_code: string
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aadhaar_card?: string
+          id?: string
+          loan_amount?: number
+          loan_type?: string
+          mobile_number?: string
+          pan_card?: string
+          photo_url?: string | null
+          qr_code?: string
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

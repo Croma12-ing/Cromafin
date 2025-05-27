@@ -8,28 +8,32 @@ import { Label } from '@/components/ui/label';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn } = useAuth();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Get stored user data
-    const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = storedUsers.find((u: any) => u.email === formData.email && u.password === formData.password);
+    setLoading(true);
     
-    if (user) {
-      // Generate a simple token
-      const token = btoa(user.email + Date.now());
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('userData', JSON.stringify(user));
-      
+    const { error } = await signIn(formData.email, formData.password);
+    
+    if (error) {
+      toast({
+        title: "Login Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
       toast({
         title: "Login Successful",
         description: "Welcome back! Redirecting to document submission...",
@@ -38,17 +42,9 @@ const Login = () => {
       setTimeout(() => {
         navigate('/document-submission');
       }, 1000);
-    } else {
-      toast({
-        title: "Login Failed",
-        description: "Invalid credentials. Please sign up if you don't have an account.",
-        variant: "destructive"
-      });
-      
-      setTimeout(() => {
-        navigate('/signup');
-      }, 2000);
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -87,8 +83,12 @@ const Login = () => {
                 />
               </div>
               
-              <Button type="submit" className="w-full bg-red-500 hover:bg-red-600">
-                Sign In
+              <Button 
+                type="submit" 
+                className="w-full bg-red-500 hover:bg-red-600"
+                disabled={loading}
+              >
+                {loading ? 'Signing In...' : 'Sign In'}
               </Button>
               
               <div className="text-center">

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,11 +8,13 @@ import { Label } from '@/components/ui/label';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { addUser } from '@/utils/dataService';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signUp } = useAuth();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,7 +23,7 @@ const Signup = () => {
     confirmPassword: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
@@ -32,22 +35,28 @@ const Signup = () => {
       return;
     }
     
-    // Store user data using our data service
-    const newUser = addUser({
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      password: formData.password,
-    });
+    setLoading(true);
     
-    toast({
-      title: "Account Created Successfully",
-      description: "Please login with your credentials.",
-    });
+    const { error } = await signUp(formData.email, formData.password, formData.name, formData.phone);
     
-    setTimeout(() => {
-      navigate('/login');
-    }, 1000);
+    if (error) {
+      toast({
+        title: "Signup Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Account Created Successfully",
+        description: "Please check your email for verification, then sign in.",
+      });
+      
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    }
+    
+    setLoading(false);
   };
 
   return (
@@ -122,8 +131,12 @@ const Signup = () => {
                 />
               </div>
               
-              <Button type="submit" className="w-full bg-red-500 hover:bg-red-600">
-                Create Account
+              <Button 
+                type="submit" 
+                className="w-full bg-red-500 hover:bg-red-600"
+                disabled={loading}
+              >
+                {loading ? 'Creating Account...' : 'Create Account'}
               </Button>
               
               <div className="text-center">

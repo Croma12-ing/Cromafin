@@ -1,29 +1,32 @@
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DocumentForm from '@/components/document-submission/DocumentForm';
 import InfoCards from '@/components/document-submission/InfoCards';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DocumentSubmission = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState<any>(null);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const user = localStorage.getItem('userData');
-    
-    if (!token || !user) {
+    if (!loading && !user) {
       navigate('/login');
-      return;
     }
-    
-    setUserData(JSON.parse(user));
-  }, [navigate]);
+  }, [user, loading, navigate]);
 
-  if (!userData) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -37,7 +40,7 @@ const DocumentSubmission = () => {
             <p className="text-xl text-gray-600">Complete your loan application by submitting required documents</p>
           </div>
 
-          <DocumentForm userData={userData} />
+          <DocumentForm />
           <InfoCards />
         </div>
       </div>

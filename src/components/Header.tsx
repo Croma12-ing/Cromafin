@@ -1,31 +1,35 @@
 
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { User, Home } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Header = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
+  const { user, signOut, loading } = useAuth();
 
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const user = localStorage.getItem('userData');
-    
-    if (token && user) {
-      setIsLoggedIn(true);
-      const userData = JSON.parse(user);
-      setUserName(userData.name || 'User');
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    setIsLoggedIn(false);
+  const handleLogout = async () => {
+    await signOut();
     navigate('/login');
   };
+
+  if (loading) {
+    return (
+      <header className="bg-white shadow-md sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
+              <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">C</span>
+              </div>
+              <span className="ml-2 text-2xl font-bold text-gray-900">CromaFin</span>
+            </div>
+            <div>Loading...</div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -76,7 +80,7 @@ const Header = () => {
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
-            {isLoggedIn ? (
+            {user ? (
               <>
                 <Button 
                   variant="outline" 
@@ -84,7 +88,7 @@ const Header = () => {
                   className="flex items-center"
                 >
                   <User className="w-4 h-4 mr-1" />
-                  {userName}
+                  Profile
                 </Button>
                 <Button 
                   onClick={handleLogout}
