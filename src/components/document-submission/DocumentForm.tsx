@@ -9,7 +9,6 @@ import { FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import QRCodeSection from './QRCodeSection';
 import LoanInfoSection from './LoanInfoSection';
 import PersonalInfoSection from './PersonalInfoSection';
 
@@ -25,7 +24,6 @@ const DocumentForm = () => {
     aadhaarCard: '',
     mobileNumber: '',
     photo: null as File | null,
-    qrCode: ''
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,7 +90,7 @@ const DocumentForm = () => {
           aadhaar_card: formData.aadhaarCard,
           mobile_number: formData.mobileNumber,
           photo_url: photoUrl,
-          qr_code: formData.qrCode,
+          qr_code: 'CBI-2591', // Static QR code reference
         });
       
       if (error) {
@@ -133,6 +131,18 @@ const DocumentForm = () => {
   return (
     <Card>
       <CardHeader>
+        {/* Barcode Section */}
+        <div className="flex justify-center mb-6">
+          <div className="text-center">
+            <img 
+              src="/lovable-uploads/5977fbf1-0d05-423e-a387-24ed588a5890.png" 
+              alt="Central Bank Of India QR Code" 
+              className="mx-auto mb-2 max-w-xs"
+            />
+            <p className="text-lg font-semibold text-gray-700">Application Fees: ₹349</p>
+          </div>
+        </div>
+        
         <CardTitle className="flex items-center">
           <FileText className="w-5 h-5 mr-2 text-blue-500" />
           Loan Application Form
@@ -170,11 +180,6 @@ const DocumentForm = () => {
             />
             <p className="text-sm text-gray-500 mt-1">Upload a recent passport-size photograph (JPG, PNG)</p>
           </div>
-
-          <QRCodeSection 
-            qrCode={formData.qrCode}
-            onChangeQrCode={(e) => updateFormData('qrCode', e.target.value)}
-          />
 
           {/* Submit Button */}
           <div className="text-center">
