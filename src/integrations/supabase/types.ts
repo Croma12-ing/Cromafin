@@ -56,6 +56,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          cibil_score: number | null
           created_at: string
           email: string
           id: string
@@ -64,6 +65,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cibil_score?: number | null
           created_at?: string
           email: string
           id: string
@@ -72,6 +74,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cibil_score?: number | null
           created_at?: string
           email?: string
           id?: string
