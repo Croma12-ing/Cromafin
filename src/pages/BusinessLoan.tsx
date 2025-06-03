@@ -1,22 +1,16 @@
-
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useAuth } from '@/contexts/AuthContext';
 
 const BusinessLoan = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    setIsLoggedIn(!!token);
-  }, []);
+  const { user, loading } = useAuth();
 
   const handleApply = () => {
-    if (isLoggedIn) {
+    if (user) {
       navigate('/document-submission');
     } else {
       navigate('/login');
@@ -57,8 +51,9 @@ const BusinessLoan = () => {
               <Button 
                 onClick={handleApply}
                 className="mt-8 bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 text-lg"
+                disabled={loading}
               >
-                Apply Now
+                {loading ? 'Loading...' : 'Apply Now'}
               </Button>
             </div>
             <div>

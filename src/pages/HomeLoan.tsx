@@ -1,23 +1,17 @@
-
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Home } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const HomeLoan = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    setIsLoggedIn(!!token);
-  }, []);
+  const { user, loading } = useAuth();
 
   const handleApply = () => {
-    if (isLoggedIn) {
+    if (user) {
       navigate('/document-submission');
     } else {
       navigate('/login');
@@ -59,8 +53,9 @@ const HomeLoan = () => {
               <Button 
                 onClick={handleApply}
                 className="mt-8 bg-green-500 hover:bg-green-600 text-white px-8 py-4 text-lg"
+                disabled={loading}
               >
-                Apply Now
+                {loading ? 'Loading...' : 'Apply Now'}
               </Button>
             </div>
             <div>
