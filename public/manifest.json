@@ -1,7 +1,7 @@
 
 {
   "name": "Croma Fin",
-  "short_name": "QuickCredit",
+  "short_name": "CromaFin",
   "description": "Get instant loans up to ₹5 Lakhs with quick approval and minimal documentation",
   "start_url": "/",
   "display": "standalone",
