@@ -9,12 +9,25 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  created_at: string;
+  cibil_score: number | null;
+}
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [userData, setUserData] = useState<any>(null);
+  const { user, loading } = useAuth();
+  const [userData, setUserData] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -22,54 +35,111 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const user = localStorage.getItem('userData');
-    
-    if (!token || !user) {
+    if (!loading && !user) {
       navigate('/login');
       return;
     }
-    
-    const parsedUser = JSON.parse(user);
-    setUserData(parsedUser);
-    setFormData({
-      name: parsedUser.name || '',
-      email: parsedUser.email || '',
-      phone: parsedUser.phone || ''
-    });
-  }, [navigate]);
 
-  const handleSave = () => {
-    const updatedUser = { ...userData, ...formData };
-    setUserData(updatedUser);
-    localStorage.setItem('userData', JSON.stringify(updatedUser));
-    
-    // Update in users array
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const userIndex = users.findIndex((u: any) => u.id === userData.id);
-    if (userIndex !== -1) {
-      users[userIndex] = updatedUser;
-      localStorage.setItem('users', JSON.stringify(users));
+    if (user) {
+      fetchUserProfile();
     }
-    
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been updated successfully.",
-    });
+  }, [user, loading, navigate]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch profile data",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (profile) {
+        setUserData(profile);
+        setFormData({
+          name: profile.name || '',
+          email: profile.email || '',
+          phone: profile.phone || ''
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setProfileLoading(false);
+    }
   };
 
-  const getLoanApplications = () => {
-    return JSON.parse(localStorage.getItem('loanApplications') || '[]')
-      .filter((app: any) => app.userId === userData?.id);
+  const handleSave = async () => {
+    if (!user || !userData) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update profile",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const updatedUser = { 
+        ...userData, 
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone
+      };
+      setUserData(updatedUser);
+      setIsEditing(false);
+      
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive"
+      });
+    }
   };
 
   const getEMIHistory = () => {
     return JSON.parse(localStorage.getItem('emiHistory') || '[]').slice(-5);
   };
 
-  if (!userData) {
-    return <div>Loading...</div>;
+  if (loading || profileLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user || !userData) {
+    return null;
   }
 
   return (
@@ -161,12 +231,17 @@ const Profile = () => {
                       
                       <div>
                         <Label>Phone</Label>
-                        <p className="text-lg">{userData.phone}</p>
+                        <p className="text-lg">{userData.phone || 'Not provided'}</p>
+                      </div>
+                      
+                      <div>
+                        <Label>CIBIL Score</Label>
+                        <p className="text-lg font-semibold text-green-600">{userData.cibil_score || 'Not available'}</p>
                       </div>
                       
                       <div>
                         <Label>Member Since</Label>
-                        <p className="text-lg">{new Date(userData.createdAt).toLocaleDateString()}</p>
+                        <p className="text-lg">{new Date(userData.created_at).toLocaleDateString()}</p>
                       </div>
                       
                       <Button onClick={() => setIsEditing(true)} className="bg-blue-500 hover:bg-blue-600">
@@ -256,8 +331,8 @@ const Profile = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="bg-blue-50 p-4 rounded-lg text-center">
-                      <p className="text-blue-600 font-semibold">Loan Applications</p>
-                      <p className="text-2xl font-bold text-blue-700">{getLoanApplications().length}</p>
+                      <p className="text-blue-600 font-semibold">CIBIL Score</p>
+                      <p className="text-2xl font-bold text-blue-700">{userData.cibil_score || 'N/A'}</p>
                     </div>
                     
                     <div className="bg-green-50 p-4 rounded-lg text-center">
@@ -268,7 +343,7 @@ const Profile = () => {
                     <div className="bg-yellow-50 p-4 rounded-lg text-center">
                       <p className="text-yellow-600 font-semibold">Account Age</p>
                       <p className="text-2xl font-bold text-yellow-700">
-                        {Math.ceil((Date.now() - new Date(userData.createdAt).getTime()) / (1000 * 60 * 60 * 24))} days
+                        {Math.ceil((Date.now() - new Date(userData.created_at).getTime()) / (1000 * 60 * 60 * 24))} days
                       </p>
                     </div>
                   </div>

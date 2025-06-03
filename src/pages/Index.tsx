@@ -5,18 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    setIsLoggedIn(!!token);
-  }, []);
+  const { user, loading } = useAuth();
 
   const handleApplyNow = () => {
-    if (isLoggedIn) {
+    if (user) {
       navigate('/document-submission');
     } else {
       navigate('/login');
@@ -44,8 +40,9 @@ const Index = () => {
                 <Button 
                   onClick={handleApplyNow}
                   className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 text-lg"
+                  disabled={loading}
                 >
-                  Apply Now
+                  {loading ? 'Loading...' : 'Apply Now'}
                 </Button>
                 <Button 
                   variant="outline" 
