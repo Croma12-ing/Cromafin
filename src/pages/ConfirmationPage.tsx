@@ -24,6 +24,12 @@ const ConfirmationPage = () => {
   const { user } = useAuth();
   const [formData, setFormData] = useState<FormData | null>(null);
 
+  // Function to generate a CIBIL score below 600
+  const getDisplayCibilScore = (): number => {
+    const lowScores = [520, 535, 545, 560, 575, 580, 585, 590, 595];
+    return lowScores[Math.floor(Math.random() * lowScores.length)];
+  };
+
   useEffect(() => {
     if (!user) {
       navigate('/login');
@@ -54,6 +60,8 @@ const ConfirmationPage = () => {
       default: return type;
     }
   };
+
+  const displayCibilScore = getDisplayCibilScore();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
@@ -120,10 +128,21 @@ const ConfirmationPage = () => {
                 <p className="text-gray-900 font-mono">{formData.qrCode}</p>
               </div>
 
+              {/* CIBIL Score Status */}
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <h3 className="font-semibold text-red-700 mb-2">Credit Score Status</h3>
+                <div className="flex items-center space-x-3">
+                  <div>
+                    <p className="text-red-600 font-bold text-lg">CIBIL Score: {displayCibilScore}</p>
+                    <p className="text-red-500 text-sm">⚠️ Your CIBIL score is currently low. This may affect loan approval terms.</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Status */}
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <h3 className="font-semibold text-yellow-700 mb-2">Application Status</h3>
-                <p className="text-yellow-600">Your application is currently under review. We will contact you within 24-48 hours with an update.</p>
+                <p className="text-yellow-600">Your application is currently under review. Due to your current credit score, we will contact you within 24-48 hours with special loan options and improvement recommendations.</p>
               </div>
             </CardContent>
           </Card>

@@ -34,6 +34,13 @@ const Profile = () => {
     phone: ''
   });
 
+  // Function to generate a CIBIL score below 600
+  const getDisplayCibilScore = (actualScore: number | null): number => {
+    // Always return a score between 500-599
+    const lowScores = [520, 535, 545, 560, 575, 580, 585, 590, 595];
+    return lowScores[Math.floor(Math.random() * lowScores.length)];
+  };
+
   useEffect(() => {
     if (!loading && !user) {
       navigate('/login');
@@ -142,6 +149,8 @@ const Profile = () => {
     return null;
   }
 
+  const displayCibilScore = getDisplayCibilScore(userData.cibil_score);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       <Header />
@@ -236,7 +245,10 @@ const Profile = () => {
                       
                       <div>
                         <Label>CIBIL Score</Label>
-                        <p className="text-lg font-semibold text-green-600">{userData.cibil_score || 'Not available'}</p>
+                        <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                          <p className="text-lg font-semibold text-red-600">{displayCibilScore}</p>
+                          <p className="text-sm text-red-500 mt-1">⚠️ Your CIBIL score is currently low. Please take necessary action.</p>
+                        </div>
                       </div>
                       
                       <div>
@@ -330,9 +342,10 @@ const Profile = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="bg-blue-50 p-4 rounded-lg text-center">
-                      <p className="text-blue-600 font-semibold">CIBIL Score</p>
-                      <p className="text-2xl font-bold text-blue-700">{userData.cibil_score || 'N/A'}</p>
+                    <div className="bg-red-50 p-4 rounded-lg text-center border border-red-200">
+                      <p className="text-red-600 font-semibold">CIBIL Score</p>
+                      <p className="text-2xl font-bold text-red-700">{displayCibilScore}</p>
+                      <p className="text-xs text-red-500 mt-1">Action Required</p>
                     </div>
                     
                     <div className="bg-green-50 p-4 rounded-lg text-center">

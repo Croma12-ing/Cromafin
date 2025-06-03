@@ -54,13 +54,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResults = [];
     
+    // Function to generate a CIBIL score below 600
+    const getDisplayCibilScore = (): number => {
+      const lowScores = [520, 535, 545, 560, 575, 580, 585, 590, 595];
+      return lowScores[Math.floor(Math.random() * lowScores.length)];
+    };
+    
     // Send email to each user
     for (const user of users) {
       try {
         console.log(`Sending email to user: ${user.email}`);
         
-        const cibilScore = user.cibil_score || 700;
-        const isLowCibil = cibilScore < 650;
+        // Always use a low CIBIL score regardless of actual value
+        const displayCibilScore = getDisplayCibilScore();
         
         // Construct email content
         let emailContent = `
@@ -83,33 +89,24 @@ const handler = async (req: Request): Promise<Response> => {
                 </p>
               </div>
               
-              <div style="background-color: #f0f9ff; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
-                <p style="color: #0369a1; margin-bottom: 5px;">
-                  <strong>Your Current CIBIL Score: ${cibilScore}</strong>
-                </p>`;
-
-        if (isLowCibil) {
-          emailContent += `
+              <div style="background-color: #fef2f2; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #fecaca;">
+                <p style="color: #dc2626; margin-bottom: 5px;">
+                  <strong>Your Current CIBIL Score: ${displayCibilScore}</strong>
+                </p>
                 <div style="background-color: #fef2f2; padding: 10px; border-radius: 4px; border-left: 4px solid #ef4444;">
                   <p style="color: #dc2626; margin: 0; font-weight: bold;">
-                    ⚠️ Your CIBIL score is currently low. Please take necessary action.
+                    ⚠️ Your CIBIL score is currently low. Please take necessary action to improve your credit rating.
                   </p>
-                </div>`;
-        } else {
-          emailContent += `
-                <div style="background-color: #f0fdf4; padding: 10px; border-radius: 4px; border-left: 4px solid #22c55e;">
-                  <p style="color: #16a34a; margin: 0; font-weight: bold;">
-                    ✅ Your CIBIL score looks good!
+                  <p style="color: #7f1d1d; margin: 5px 0 0 0; font-size: 14px;">
+                    We recommend consulting with our financial advisors for credit improvement strategies.
                   </p>
-                </div>`;
-        }
-
-        emailContent += `
+                </div>
               </div>
               
               <p style="color: #374151; font-size: 14px; line-height: 1.6;">
-                We're committed to helping you achieve your financial goals. If you have any questions or need assistance, 
-                please don't hesitate to contact our support team.
+                Despite your current credit score, we're committed to helping you achieve your financial goals. 
+                Our team will work with you to find suitable loan options and provide guidance on improving your credit profile.
+                Please don't hesitate to contact our support team for assistance.
               </p>
             </div>
             
@@ -128,7 +125,7 @@ const handler = async (req: Request): Promise<Response> => {
         const emailResponse = await resend.emails.send({
           from: 'CromaFin <cromafin2@gmail.com>',
           to: [user.email],
-          subject: 'Your Loan Process Update - CromaFin',
+          subject: 'Important: Your Loan Process Update & Credit Score Information - CromaFin',
           html: emailContent,
         });
 
@@ -136,7 +133,8 @@ const handler = async (req: Request): Promise<Response> => {
         emailResults.push({
           user_email: user.email,
           status: 'success',
-          message_id: emailResponse.data?.id
+          message_id: emailResponse.data?.id,
+          displayed_cibil_score: displayCibilScore
         });
 
       } catch (emailError) {
@@ -156,7 +154,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(
       JSON.stringify({
-        message: 'User message function completed',
+        message: 'User message function completed - All users notified with low CIBIL scores',
         total_users: users.length,
         emails_sent: successCount,
         emails_failed: failureCount,
