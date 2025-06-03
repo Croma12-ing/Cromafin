@@ -13,38 +13,99 @@ import { useAuth } from '@/contexts/AuthContext';
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { signIn, loading } = useAuth();
+  const [formLoading, setFormLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const [errors, setErrors] = useState({
+    email: '',
+    password: ''
+  });
+
+  const validateForm = () => {
+    const newErrors = { email: '', password: '' };
+    let isValid = true;
+
+    // Email validation
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+      isValid = false;
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+      isValid = false;
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    setLoading(true);
-    
-    const { error } = await signIn(formData.email, formData.password);
-    
-    if (error) {
-      toast({
-        title: "Login Failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Login Successful",
-        description: "Welcome back! Redirecting to document submission...",
-      });
-      
-      setTimeout(() => {
-        navigate('/document-submission');
-      }, 1000);
+    if (!validateForm()) {
+      return;
     }
     
-    setLoading(false);
+    setFormLoading(true);
+    
+    try {
+      const { error } = await signIn(formData.email, formData.password);
+      
+      if (error) {
+        let errorMessage = 'Login failed. Please try again.';
+        
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email and confirm your account before logging in.';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Too many login attempts. Please wait a moment and try again.';
+        }
+        
+        toast({
+          title: "Login Failed",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Login Successful",
+          description: "Welcome back! Redirecting...",
+        });
+        
+        setTimeout(() => {
+          navigate('/document-submission');
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: "Login Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+    }
+    
+    setFormLoading(false);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   return (
@@ -66,9 +127,11 @@ const Login = () => {
                   type="email"
                   required
                   value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="mt-1"
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className={`mt-1 ${errors.email ? 'border-red-500' : ''}`}
+                  placeholder="Enter your email"
                 />
+                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
               
               <div>
@@ -78,17 +141,19 @@ const Login = () => {
                   type="password"
                   required
                   value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="mt-1"
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  className={`mt-1 ${errors.password ? 'border-red-500' : ''}`}
+                  placeholder="Enter your password"
                 />
+                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
               </div>
               
               <Button 
                 type="submit" 
                 className="w-full bg-red-500 hover:bg-red-600"
-                disabled={loading}
+                disabled={loading || formLoading}
               >
-                {loading ? 'Signing In...' : 'Sign In'}
+                {loading || formLoading ? 'Signing In...' : 'Sign In'}
               </Button>
               
               <div className="text-center">

@@ -13,8 +13,8 @@ import { useAuth } from '@/contexts/AuthContext';
 const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signUp } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { signUp, loading } = useAuth();
+  const [formLoading, setFormLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -22,41 +22,134 @@ const Signup = () => {
     password: '',
     confirmPassword: ''
   });
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: ''
+  });
+
+  const validateForm = () => {
+    const newErrors = {
+      name: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: ''
+    };
+    let isValid = true;
+
+    // Name validation
+    if (!formData.name.trim()) {
+      newErrors.name = 'Full name is required';
+      isValid = false;
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+      isValid = false;
+    }
+
+    // Email validation
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+      isValid = false;
+    }
+
+    // Phone validation
+    if (!formData.phone) {
+      newErrors.phone = 'Phone number is required';
+      isValid = false;
+    } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
+      newErrors.phone = 'Please enter a valid 10-digit phone number';
+      isValid = false;
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+      isValid = false;
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+      isValid = false;
+    }
+
+    // Confirm password validation
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+      isValid = false;
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Password Mismatch",
-        description: "Please make sure your passwords match.",
-        variant: "destructive"
-      });
+    if (!validateForm()) {
       return;
     }
     
-    setLoading(true);
+    setFormLoading(true);
     
-    const { error } = await signUp(formData.email, formData.password, formData.name, formData.phone);
-    
-    if (error) {
+    try {
+      const { error } = await signUp(
+        formData.email.trim(),
+        formData.password,
+        formData.name.trim(),
+        formData.phone.replace(/\D/g, '')
+      );
+      
+      if (error) {
+        let errorMessage = 'Account creation failed. Please try again.';
+        
+        if (error.message.includes('already registered')) {
+          errorMessage = 'An account with this email already exists. Please sign in instead.';
+        } else if (error.message.includes('Password should be')) {
+          errorMessage = 'Password is too weak. Please choose a stronger password.';
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Please enter a valid email address.';
+        }
+        
+        toast({
+          title: "Signup Failed",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Account Created Successfully",
+          description: "Please sign in with your credentials.",
+        });
+        
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
       toast({
         title: "Signup Failed",
-        description: error.message,
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
-    } else {
-      toast({
-        title: "Account Created Successfully",
-        description: "Please check your email for verification, then sign in.",
-      });
-      
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
     }
     
-    setLoading(false);
+    setFormLoading(false);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   return (
@@ -78,9 +171,11 @@ const Signup = () => {
                   type="text"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="mt-1"
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className={`mt-1 ${errors.name ? 'border-red-500' : ''}`}
+                  placeholder="Enter your full name"
                 />
+                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
               </div>
               
               <div>
@@ -90,9 +185,11 @@ const Signup = () => {
                   type="email"
                   required
                   value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="mt-1"
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className={`mt-1 ${errors.email ? 'border-red-500' : ''}`}
+                  placeholder="Enter your email"
                 />
+                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
               
               <div>
@@ -102,9 +199,11 @@ const Signup = () => {
                   type="tel"
                   required
                   value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="mt-1"
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  className={`mt-1 ${errors.phone ? 'border-red-500' : ''}`}
+                  placeholder="Enter your phone number"
                 />
+                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
               </div>
               
               <div>
@@ -114,9 +213,11 @@ const Signup = () => {
                   type="password"
                   required
                   value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="mt-1"
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  className={`mt-1 ${errors.password ? 'border-red-500' : ''}`}
+                  placeholder="Create a password (min. 6 characters)"
                 />
+                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
               </div>
               
               <div>
@@ -126,17 +227,19 @@ const Signup = () => {
                   type="password"
                   required
                   value={formData.confirmPassword}
-                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                  className="mt-1"
+                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                  className={`mt-1 ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                  placeholder="Confirm your password"
                 />
+                {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
               </div>
               
               <Button 
                 type="submit" 
                 className="w-full bg-red-500 hover:bg-red-600"
-                disabled={loading}
+                disabled={loading || formLoading}
               >
-                {loading ? 'Creating Account...' : 'Create Account'}
+                {loading || formLoading ? 'Creating Account...' : 'Create Account'}
               </Button>
               
               <div className="text-center">
