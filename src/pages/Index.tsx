@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
@@ -163,6 +164,7 @@ const Index = () => {
       </section>
 
       <Footer />
+      <PWAInstallPrompt />
     </div>
   );
 };
