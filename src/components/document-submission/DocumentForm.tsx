@@ -131,21 +131,9 @@ const DocumentForm = () => {
   return (
     <Card>
       <CardHeader>
-        {/* Barcode Section */}
-        <div className="flex justify-center mb-6">
-          <div className="text-center">
-            <img 
-              src="/lovable-uploads/5977fbf1-0d05-423e-a387-24ed588a5890.png" 
-              alt="Central Bank Of India QR Code" 
-              className="mx-auto mb-2 max-w-xs"
-            />
-            <p className="text-lg font-semibold text-gray-700">Application Fees: ₹349</p>
-          </div>
-        </div>
-        
         <CardTitle className="flex items-center">
           <FileText className="w-5 h-5 mr-2 text-blue-500" />
-          Loan Application Form
+          Document Submission
         </CardTitle>
         <CardDescription>Please fill all fields to proceed with your loan application</CardDescription>
       </CardHeader>
@@ -188,7 +176,7 @@ const DocumentForm = () => {
               className="bg-green-500 hover:bg-green-600 px-12 py-3 text-lg"
               disabled={loading}
             >
-              {loading ? 'Submitting...' : 'Submit Application'}
+              {loading ? 'Submitting...' : 'Submit and Pay ₹349'}
             </Button>
           </div>
         </form>
