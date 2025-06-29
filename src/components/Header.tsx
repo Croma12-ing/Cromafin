@@ -53,6 +53,12 @@ const Header = () => {
               Home
             </button>
             <button 
+              onClick={() => navigate('/about-us')}
+              className="text-gray-700 hover:text-purple-500 transition-colors"
+            >
+              About Us
+            </button>
+            <button 
               onClick={() => navigate('/business-loan')}
               className="text-gray-700 hover:text-blue-500 transition-colors"
             >
