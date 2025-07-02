@@ -102,15 +102,8 @@ const DocumentForm = () => {
         description: "Your loan application has been submitted for review.",
       });
       
-      // Navigate to confirmation page with form data
-      navigate('/confirmation', { 
-        state: { 
-          formData: {
-            ...formData,
-            photoUrl
-          }
-        } 
-      });
+      // Redirect to the specified URL
+      window.location.href = 'https://superprofile.bio/vp/cromafin-629';
       
     } catch (error: any) {
       console.error('Error submitting application:', error);
