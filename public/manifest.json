@@ -9,7 +9,7 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/1000548164.png",
+      "src": "/file_000000007f28622fb4380c53006b656c (1).jpg",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
@@ -18,7 +18,7 @@
   "categories": ["finance", "business"],
   "screenshots": [
     {
-      "src": "/1000548164.png",
+      "src": "/file_000000007f28622fb4380c53006b656c (1).jpg",
       "sizes": "540x720",
       "type": "image/png",
       "form_factor": "narrow"
