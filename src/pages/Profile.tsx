@@ -167,15 +167,8 @@ const Profile = () => {
       // Sign out the user
       await signOut();
       
-      // Show success message
-      toast({
-        title: "Account Deleted",
-        description: "Your profile has been deleted successfully.",
-        variant: "default"
-      });
-
-      // Redirect to home page
-      navigate('/');
+      // Redirect to delete account page
+      navigate('/delete-account');
       
     } catch (error) {
       console.error('Error deleting account:', error);
