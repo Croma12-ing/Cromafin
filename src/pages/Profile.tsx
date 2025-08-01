@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { User } from 'lucide-react';
+import { User, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -24,10 +24,11 @@ interface UserProfile {
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const [userData, setUserData] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -135,6 +136,57 @@ const Profile = () => {
 
   const getEMIHistory = () => {
     return JSON.parse(localStorage.getItem('emiHistory') || '[]').slice(-5);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+
+    // Confirm deletion
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your account? This action cannot be undone."
+    );
+    
+    if (!confirmed) return;
+
+    try {
+      setIsDeleting(true);
+
+      // Delete profile from database
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user.id);
+
+      if (profileError) {
+        throw profileError;
+      }
+
+      // Clear local storage
+      localStorage.removeItem('emiHistory');
+      
+      // Sign out the user
+      await signOut();
+      
+      // Show success message
+      toast({
+        title: "Account Deleted",
+        description: "Your profile has been deleted successfully.",
+        variant: "default"
+      });
+
+      // Redirect to home page
+      navigate('/');
+      
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete account. Please try again or contact support.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (loading || profileLoading) {
@@ -331,6 +383,16 @@ const Profile = () => {
                     className="w-full"
                   >
                     Contact Support
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleDeleteAccount}
+                    disabled={isDeleting}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    {isDeleting ? 'Deleting...' : 'Delete Account'}
                   </Button>
                 </CardContent>
               </Card>
