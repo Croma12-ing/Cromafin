@@ -151,6 +151,17 @@ const Profile = () => {
     try {
       setIsDeleting(true);
 
+      // Delete user's document submissions first
+      const { error: submissionsError } = await supabase
+        .from('document_submissions')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (submissionsError) {
+        console.error('Error deleting document submissions:', submissionsError);
+        // Continue with deletion even if this fails
+      }
+
       // Delete profile from database
       const { error: profileError } = await supabase
         .from('profiles')
@@ -158,11 +169,12 @@ const Profile = () => {
         .eq('id', user.id);
 
       if (profileError) {
-        throw profileError;
+        console.error('Error deleting profile:', profileError);
+        // Continue with deletion even if this fails
       }
 
-      // Clear local storage
-      localStorage.removeItem('emiHistory');
+      // Clear all local storage
+      localStorage.clear();
       
       // Sign out the user
       await signOut();
