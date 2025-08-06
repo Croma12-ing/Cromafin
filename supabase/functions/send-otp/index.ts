@@ -44,6 +44,9 @@ serve(async (req) => {
       )
     }
 
+    // Format the Twilio from number to ensure it's in E.164 format
+    const formattedFromNumber = fromNumber.startsWith('+') ? fromNumber : `+${fromNumber}`
+
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
     
@@ -55,7 +58,7 @@ serve(async (req) => {
     const auth = btoa(`${accountSid}:${authToken}`)
     
     const body = new URLSearchParams({
-      From: fromNumber,
+      From: formattedFromNumber,
       To: formattedPhone,
       Body: `Your OTP for account verification is: ${otp}. This code will expire in 5 minutes.`
     })
@@ -72,8 +75,23 @@ serve(async (req) => {
     if (!twilioResponse.ok) {
       const error = await twilioResponse.text()
       console.error('Twilio error:', error)
+      
+      // Parse Twilio error for better user feedback
+      let userMessage = 'Failed to send OTP. Please try again.'
+      try {
+        const errorData = JSON.parse(error)
+        if (errorData.code === 21212) {
+          console.error('Invalid Twilio phone number configuration. Please check TWILIO_PHONE_NUMBER secret.')
+          userMessage = 'SMS service configuration error. Please contact support.'
+        } else if (errorData.code === 21614) {
+          userMessage = 'Invalid phone number format. Please enter a valid mobile number.'
+        }
+      } catch (e) {
+        // Keep default message if error parsing fails
+      }
+      
       return new Response(
-        JSON.stringify({ error: 'Failed to send OTP' }),
+        JSON.stringify({ error: userMessage }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
