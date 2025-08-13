@@ -14,7 +14,6 @@ import { supabase } from '@/integrations/supabase/client';
 const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState<'form' | 'otp'>('form');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -23,14 +22,12 @@ const Signup = () => {
     password: '',
     confirmPassword: ''
   });
-  const [otp, setOtp] = useState('');
   const [errors, setErrors] = useState({
     name: '',
     email: '',
     phone: '',
     password: '',
-    confirmPassword: '',
-    otp: ''
+    confirmPassword: ''
   });
 
   const validateForm = () => {
@@ -39,8 +36,7 @@ const Signup = () => {
       email: '',
       phone: '',
       password: '',
-      confirmPassword: '',
-      otp: ''
+      confirmPassword: ''
     };
     let isValid = true;
 
@@ -100,53 +96,17 @@ const Signup = () => {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('send-email-otp', {
-        body: {
-          email: formData.email.trim(),
-          name: formData.name.trim()
-        }
-      });
+      const redirectUrl = `${window.location.origin}/`;
       
-      if (error) {
-        throw error;
-      }
-      
-      toast({
-        title: "Verification Email Sent",
-        description: "Please check your email and enter the OTP code to continue.",
-      });
-      
-      setCurrentStep('otp');
-    } catch (error) {
-      console.error('Send OTP error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send verification email. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!otp || otp.length !== 6) {
-      setErrors(prev => ({ ...prev, otp: 'Please enter a valid 6-digit OTP' }));
-      return;
-    }
-    
-    setLoading(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('verify-email-otp', {
-        body: {
-          email: formData.email.trim(),
-          otp: otp.trim(),
-          password: formData.password,
-          name: formData.name.trim(),
-          phone: formData.phone.replace(/\D/g, '')
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email.trim(),
+        password: formData.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            name: formData.name.trim(),
+            phone: formData.phone.replace(/\D/g, '')
+          }
         }
       });
       
@@ -156,18 +116,17 @@ const Signup = () => {
       
       toast({
         title: "Account Created Successfully",
-        description: "Your account has been verified and created. Please sign in.",
+        description: "Your account has been created. Please sign in to continue.",
       });
       
       setTimeout(() => {
         navigate('/login');
       }, 1500);
     } catch (error: any) {
-      console.error('Verify OTP error:', error);
-      const errorMessage = error.message || 'Invalid OTP. Please try again.';
-      setErrors(prev => ({ ...prev, otp: errorMessage }));
+      console.error('Signup error:', error);
+      const errorMessage = error.message || 'Failed to create account. Please try again.';
       toast({
-        title: "Verification Failed",
+        title: "Registration Failed",
         description: errorMessage,
         variant: "destructive"
       });
@@ -176,36 +135,6 @@ const Signup = () => {
     }
   };
 
-  const handleResendOtp = async () => {
-    setLoading(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('send-email-otp', {
-        body: {
-          email: formData.email.trim(),
-          name: formData.name.trim()
-        }
-      });
-      
-      if (error) {
-        throw error;
-      }
-      
-      toast({
-        title: "OTP Resent",
-        description: "A new verification code has been sent to your email.",
-      });
-    } catch (error) {
-      console.error('Resend OTP error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to resend verification code. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
 
   const handleInputChange = (field: string, value: string) => {
@@ -216,12 +145,6 @@ const Signup = () => {
     }
   };
 
-  const handleOtpChange = (value: string) => {
-    setOtp(value);
-    if (errors.otp) {
-      setErrors(prev => ({ ...prev, otp: '' }));
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
@@ -231,17 +154,13 @@ const Signup = () => {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-gray-900">
-              {currentStep === 'form' ? 'Create Account' : 'Verify Email'}
+              Create Account
             </CardTitle>
             <CardDescription>
-              {currentStep === 'form' 
-                ? 'Sign up to get started' 
-                : 'Enter the verification code sent to your email'
-              }
+              Sign up to get started
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {currentStep === 'form' ? (
               <form onSubmit={handleFormSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="name">Full Name</Label>
@@ -317,7 +236,7 @@ const Signup = () => {
                   className="w-full bg-red-500 hover:bg-red-600"
                   disabled={loading}
                 >
-                  {loading ? 'Sending Verification...' : 'Send Verification Code'}
+                  {loading ? 'Creating Account...' : 'Create Account'}
                 </Button>
                 
                 <div className="text-center">
@@ -331,60 +250,6 @@ const Signup = () => {
                   </button>
                 </div>
               </form>
-            ) : (
-              <form onSubmit={handleOtpSubmit} className="space-y-4">
-                <div className="text-center mb-4">
-                  <p className="text-sm text-gray-600">
-                    We've sent a 6-digit verification code to
-                  </p>
-                  <p className="font-medium text-gray-900">{formData.email}</p>
-                </div>
-                
-                <div>
-                  <Label htmlFor="otp">Verification Code</Label>
-                  <Input
-                    id="otp"
-                    type="text"
-                    required
-                    maxLength={6}
-                    value={otp}
-                    onChange={(e) => handleOtpChange(e.target.value.replace(/\D/g, ''))}
-                    className={`mt-1 text-center text-lg tracking-widest ${errors.otp ? 'border-red-500' : ''}`}
-                    placeholder="000000"
-                  />
-                  {errors.otp && <p className="text-red-500 text-sm mt-1">{errors.otp}</p>}
-                </div>
-                
-                <Button 
-                  type="submit" 
-                  className="w-full bg-red-500 hover:bg-red-600"
-                  disabled={loading || otp.length !== 6}
-                >
-                  {loading ? 'Verifying...' : 'Verify & Create Account'}
-                </Button>
-                
-                <div className="text-center space-y-2">
-                  <button
-                    type="button"
-                    onClick={handleResendOtp}
-                    disabled={loading}
-                    className="text-blue-500 hover:text-blue-600 font-medium text-sm"
-                  >
-                    Resend verification code
-                  </button>
-                  
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep('form')}
-                      className="text-gray-500 hover:text-gray-600 font-medium text-sm"
-                    >
-                      ← Back to form
-                    </button>
-                  </div>
-                </div>
-              </form>
-            )}
           </CardContent>
         </Card>
       </div>
