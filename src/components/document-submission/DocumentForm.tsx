@@ -24,12 +24,14 @@ const DocumentForm = () => {
     aadhaarCard: '',
     mobileNumber: '',
     photo: null as File | null,
+    panCardPhoto: null as File | null,
+    aadhaarCardPhoto: null as File | null,
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData({...formData, photo: file});
+      setFormData({...formData, [fieldName]: file});
     }
   };
 
@@ -70,12 +72,29 @@ const DocumentForm = () => {
     setLoading(true);
     
     try {
-      // Upload photo if provided
+      // Upload photos if provided
       let photoUrl = null;
+      let panCardPhotoUrl = null;
+      let aadhaarCardPhotoUrl = null;
+      
       if (formData.photo) {
         photoUrl = await uploadPhoto(formData.photo);
         if (!photoUrl) {
-          throw new Error('Failed to upload photo');
+          throw new Error('Failed to upload passport photo');
+        }
+      }
+      
+      if (formData.panCardPhoto) {
+        panCardPhotoUrl = await uploadPhoto(formData.panCardPhoto);
+        if (!panCardPhotoUrl) {
+          throw new Error('Failed to upload PAN card photo');
+        }
+      }
+      
+      if (formData.aadhaarCardPhoto) {
+        aadhaarCardPhotoUrl = await uploadPhoto(formData.aadhaarCardPhoto);
+        if (!aadhaarCardPhotoUrl) {
+          throw new Error('Failed to upload Aadhaar card photo');
         }
       }
       
@@ -90,6 +109,8 @@ const DocumentForm = () => {
           aadhaar_card: formData.aadhaarCard,
           mobile_number: formData.mobileNumber,
           photo_url: photoUrl,
+          pan_card_photo_url: panCardPhotoUrl,
+          aadhaar_card_photo_url: aadhaarCardPhotoUrl,
           qr_code: 'CBI-2591', // Static QR code reference
         });
       
@@ -148,18 +169,46 @@ const DocumentForm = () => {
             onChangeMobileNumber={(e) => updateFormData('mobileNumber', e.target.value)}
           />
 
-          {/* Photo Upload */}
-          <div>
-            <Label htmlFor="photo">Passport Size Photo</Label>
-            <Input
-              id="photo"
-              type="file"
-              accept="image/*"
-              required
-              onChange={handleFileChange}
-              className="mt-1"
-            />
-            <p className="text-sm text-gray-500 mt-1">Upload a recent passport-size photograph (JPG, PNG)</p>
+          {/* Photo Uploads */}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="photo">Passport Size Photo</Label>
+              <Input
+                id="photo"
+                type="file"
+                accept="image/*"
+                required
+                onChange={(e) => handleFileChange(e, 'photo')}
+                className="mt-1"
+              />
+              <p className="text-sm text-gray-500 mt-1">Upload a recent passport-size photograph (JPG, PNG)</p>
+            </div>
+            
+            <div>
+              <Label htmlFor="panCardPhoto">PAN Card Photo</Label>
+              <Input
+                id="panCardPhoto"
+                type="file"
+                accept="image/*"
+                required
+                onChange={(e) => handleFileChange(e, 'panCardPhoto')}
+                className="mt-1"
+              />
+              <p className="text-sm text-gray-500 mt-1">Upload a clear photo of your PAN card (JPG, PNG)</p>
+            </div>
+            
+            <div>
+              <Label htmlFor="aadhaarCardPhoto">Aadhaar Card Photo</Label>
+              <Input
+                id="aadhaarCardPhoto"
+                type="file"
+                accept="image/*"
+                required
+                onChange={(e) => handleFileChange(e, 'aadhaarCardPhoto')}
+                className="mt-1"
+              />
+              <p className="text-sm text-gray-500 mt-1">Upload a clear photo of your Aadhaar card (JPG, PNG)</p>
+            </div>
           </div>
 
           {/* Submit Button */}
