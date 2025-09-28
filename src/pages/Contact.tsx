@@ -143,7 +143,7 @@ const Contact = () => {
                   <CardTitle className="text-blue-600">📞 Phone Support</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-blue-700">1800-123-4567</p>
+                  <p className="text-2xl font-bold text-blue-700">9109695509</p>
                   <p className="text-gray-600">Available 24/7</p>
                   <p className="text-sm text-gray-500 mt-2">Call us for immediate assistance with your loan application</p>
                 </CardContent>
@@ -154,7 +154,7 @@ const Contact = () => {
                   <CardTitle className="text-green-600">📧 Email Support</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-lg font-semibold text-green-700">support@cromafin.com</p>
+                  <p className="text-lg font-semibold text-green-700">cromafin2@gmail.com</p>
                   <p className="text-gray-600">Response within 2 hours</p>
                   <p className="text-sm text-gray-500 mt-2">Email us for detailed loan information and documentation help</p>
                 </CardContent>
