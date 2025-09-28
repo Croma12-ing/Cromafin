@@ -44,7 +44,7 @@ const App = () => (
             <Route path="/document-submission" element={<DocumentSubmission />} />
             <Route path="/confirmation" element={<ConfirmationPage />} />
             <Route path="/about-us" element={<AboutUs />} />
-            <Route path="/privacy-policy" element={<PrivacyDetail />} />
+            <Route path="/privacypolicy" element={<PrivacyDetail />} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             <Route path="/delete-account" element={<Delete_Account />} />
