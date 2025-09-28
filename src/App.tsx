@@ -16,7 +16,7 @@ import Contact from "./pages/Contact";
 import DocumentSubmission from "./pages/DocumentSubmission";
 import ConfirmationPage from "./pages/ConfirmationPage";
 import AboutUs from "./pages/AboutUs";
-import PrivacyDetail from "./pages/PrivacyDetail";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import Delete_Account from "./pages/Delete_Account";
@@ -44,7 +44,7 @@ const App = () => (
             <Route path="/document-submission" element={<DocumentSubmission />} />
             <Route path="/confirmation" element={<ConfirmationPage />} />
             <Route path="/about-us" element={<AboutUs />} />
-            <Route path="/privacypolicy" element={<PrivacyDetail />} />
+            <Route path="/privacypolicy" element={<PrivacyPolicy />} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             <Route path="/delete-account" element={<Delete_Account />} />
