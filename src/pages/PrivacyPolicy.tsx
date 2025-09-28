@@ -22,7 +22,7 @@ const PrivacyPolicy = () => {
           <CardContent className="space-y-4">
             <p className="text-gray-700">
               We collect information you provide directly to us, such as when you create an account, 
-              apply for a loan, or contact us for support.
+              Advice for a loan, or contact us for support.
             </p>
             <ul className="list-disc list-inside text-gray-700 space-y-2">
               <li>Personal identification information (Name, Email, Phone number)</li>
