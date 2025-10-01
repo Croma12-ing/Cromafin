@@ -93,7 +93,7 @@ const PrivacyPolicy = () => {
           <CardContent>
             <p className="text-gray-700">
               If you have any questions about this Privacy Policy or our data practices, 
-              please contact us at <strong>privacy@cromafin.com</strong> or through our website's contact page.
+              please contact us at <strong>cromafin2@gmail.com</strong> or through our website's contact page.
             </p>
           </CardContent>
         </Card>
