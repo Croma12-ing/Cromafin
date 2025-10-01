@@ -59,8 +59,6 @@ serve(async (req) => {
     // OTP is valid, delete it from storage
     await kv.delete(otpKey)
 
-    console.log(`OTP verified successfully for ${phoneNumber}`)
-
     return new Response(
       JSON.stringify({ 
         success: true, 
@@ -73,9 +71,8 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error in verify-otp function:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Verification failed. Please try again.' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

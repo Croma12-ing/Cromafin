@@ -96,8 +96,6 @@ serve(async (req) => {
     // OTP verified and account created, delete the OTP from storage
     await kv.delete(otpKey)
 
-    console.log(`Email OTP verified and account created for ${email}`)
-
     return new Response(
       JSON.stringify({ 
         success: true, 
@@ -111,9 +109,8 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error in verify-email-otp function:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Verification failed. Please try again.' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

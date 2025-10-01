@@ -89,7 +89,6 @@ const Login = () => {
         }, 1000);
       }
     } catch (error) {
-      console.error('Login error:', error);
       toast({
         title: "Login Failed",
         description: "An unexpected error occurred. Please try again.",

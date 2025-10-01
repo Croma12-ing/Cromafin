@@ -62,7 +62,7 @@ serve(async (req) => {
           <div style="background: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
             <h2 style="color: #333; font-size: 36px; letter-spacing: 8px; margin: 0;">${otp}</h2>
           </div>
-          <p>This code will expire in 10 minutes for security reasons.</p>
+          <p>This code will expire in 5 minutes for security reasons.</p>
           <p>If you didn't request this verification, please ignore this email.</p>
           <p>Best regards,<br>The Team</p>
         </div>
@@ -84,10 +84,8 @@ serve(async (req) => {
     const kv = await Deno.openKv()
     const otpKey = ['email_otp', email]
     
-    // Store OTP with 10-minute expiration
-    await kv.set(otpKey, otp, { expireIn: 600000 }) // 10 minutes
-
-    console.log(`Email OTP sent to ${email}: ${otp}`)
+    // Store OTP with 5-minute expiration for security
+    await kv.set(otpKey, otp, { expireIn: 300000 }) // 5 minutes
 
     return new Response(
       JSON.stringify({ 

@@ -123,7 +123,6 @@ const Signup = () => {
         navigate('/login');
       }, 1500);
     } catch (error: any) {
-      console.error('Signup error:', error);
       const errorMessage = error.message || 'Failed to create account. Please try again.';
       toast({
         title: "Registration Failed",

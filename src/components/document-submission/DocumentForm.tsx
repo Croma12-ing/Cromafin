@@ -38,21 +38,21 @@ const DocumentForm = () => {
   const uploadPhoto = async (file: File): Promise<string | null> => {
     if (!user) return null;
     
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+    // Sanitize file name to prevent path traversal
+    const fileExt = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const sanitizedFileName = `${user.id}/${Date.now()}.${fileExt}`;
     
     const { error } = await supabase.storage
       .from('documents')
-      .upload(fileName, file);
+      .upload(sanitizedFileName, file);
     
     if (error) {
-      console.error('Error uploading file:', error);
       return null;
     }
     
     const { data } = supabase.storage
       .from('documents')
-      .getPublicUrl(fileName);
+      .getPublicUrl(sanitizedFileName);
     
     return data.publicUrl;
   };
@@ -127,7 +127,6 @@ const DocumentForm = () => {
       window.location.href = 'https://superprofile.bio/vp/cromafin-629';
       
     } catch (error: any) {
-      console.error('Error submitting application:', error);
       toast({
         title: "Submission Failed",
         description: error.message || "Failed to submit your application. Please try again.",
